@@ -121,6 +121,7 @@
     const metaGrid = document.getElementById("meta-grid");
     const rawJson = document.getElementById("raw-json");
     const decisionMatrix = document.getElementById("decision-matrix");
+    const AED_TO_INR = 22.7;
 
     queryInput.value = initialQuery;
 
@@ -148,18 +149,136 @@
       `;
     }
 
+    function displayCurrency(result) {
+      return result.display_currency === "INR" ? "INR" : "AED";
+    }
+
+    function formatPrice(priceAed, result) {
+      if (displayCurrency(result) === "INR") {
+        return `₹${Math.round((Number(priceAed) || 0) * AED_TO_INR).toLocaleString("en-IN")}`;
+      }
+      return `${escapeHtml(priceAed)} AED`;
+    }
+
+    function formatBudget(result) {
+      const constraints = result.extracted_constraints || {};
+      if (!result.budget_extracted) return "Not specified";
+      if (displayCurrency(result) === "INR") {
+        const original = constraints.budget_original || result.budget_extracted * AED_TO_INR;
+        return `₹${Math.round(original).toLocaleString("en-IN")}`;
+      }
+      return `${result.budget_extracted} AED`;
+    }
+
+    function suggestionIntent(label) {
+      const value = String(label || "").toLowerCase();
+      if (value.includes("budget") || value.includes("aed") || value.includes("درهم") || value.includes("ميزانية")) return "budget";
+      if (value.includes("age") || value.includes("عمر")) return "age";
+      if (value.includes("preference") || value.includes("تفضيل")) return "preference";
+      if (value.includes("occasion") || value.includes("مناسبة")) return "occasion";
+      if (value.includes("category") || value.includes("فئة")) return "category";
+      if (value.includes("recipient") || value.includes("baby or mom") || value.includes("مستلم") || value.includes("طفل أو أم")) return "recipient";
+      return "detail";
+    }
+
+    function chipList(items) {
+      if (!items || !items.length) return "";
+      return `
+        <div class="mt-5 flex flex-wrap gap-2">
+          ${items.map((item) => `
+            <button class="suggestion-chip rounded-full border border-border bg-accent/70 px-3 py-1 text-sm font-semibold text-text-main transition hover:border-primary hover:bg-white" data-suggestion="${escapeHtml(item)}" data-intent="${suggestionIntent(item)}" type="button">
+              ${escapeHtml(item)}
+            </button>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function improvementBox(result) {
+      const suggestions = result.language_detected === "ar"
+        ? result.suggested_refinements_ar
+        : result.suggested_refinements_en;
+      if (!suggestions || !suggestions.length) return "";
+      const fields = suggestions.map((item) => {
+        const intent = suggestionIntent(item);
+        return `
+          <label class="flex min-w-0 flex-1 flex-col gap-2 rounded-[16px] border border-accent bg-[#FFF7FA] p-3">
+            <span class="text-sm font-semibold text-text-main">${escapeHtml(item)}</span>
+            <input class="suggestion-input rounded-full border border-border bg-white px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:border-primary focus:ring-primary" data-intent="${intent}" data-suggestion="${escapeHtml(item)}" placeholder="${suggestionPrompt(intent, item, result)}" type="text"/>
+          </label>
+        `;
+      }).join("");
+      return `
+        <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-6 shadow-ambient">
+          <p class="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-primary">Improve suggestions</p>
+          <h2 class="font-sans-round text-xl font-bold">Make this search more specific</h2>
+          <p class="mt-2 max-w-3xl leading-7 text-text-muted">
+            Add one or more details, then update once.
+          </p>
+          ${chipList(suggestions)}
+          <form class="mt-5 rounded-[18px]" id="inline-suggestion-form">
+            <div class="grid gap-3 md:grid-cols-2">
+              ${fields}
+            </div>
+            <button class="mt-4 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition hover:opacity-90" type="submit">Update results</button>
+          </form>
+        </article>
+      `;
+    }
+
+    function suggestionPrompt(intent, label, result = {}) {
+      const currency = displayCurrency(result);
+      const prompts = {
+        budget: currency === "INR" ? "Budget in INR, for example 1500" : "Budget in AED, for example 150",
+        age: "Baby age, for example 6 months",
+        preference: "Preference, for example educational or practical",
+        occasion: "Occasion, for example birthday or Eid",
+        category: "Category, for example toys or books",
+        recipient: "Recipient, for example baby or new mom",
+        detail: `Detail for ${label}`
+      };
+      return prompts[intent] || prompts.detail;
+    }
+
+    function showInlineSuggestion(label, intent) {
+      const input = document.querySelector(`.suggestion-input[data-intent="${intent}"]`);
+      if (!input) return;
+      input.focus();
+    }
+
+    function applyInlineSuggestions() {
+      const form = document.getElementById("inline-suggestion-form");
+      if (!form) return;
+      const current = queryInput.value.trim();
+      const answers = Array.from(form.querySelectorAll(".suggestion-input"))
+        .map((input) => input.value.trim())
+        .filter(Boolean);
+      if (!answers.length) return;
+      const nextQuery = current ? `${current}, ${answers.join(", ")}` : answers.join(", ");
+      queryInput.value = nextQuery;
+      window.history.pushState({}, "", `/results?q=${encodeURIComponent(nextQuery)}`);
+      loadResults(nextQuery);
+    }
+
     function renderDecisionMatrix(result) {
       const confidences = (result.recommendations || []).map((item) => item.confidence || 0);
       const avgConfidence = confidences.length
         ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length
         : 0;
+      const constraints = result.extracted_constraints || {};
+      const preferences = constraints.preferences && constraints.preferences.length
+        ? constraints.preferences.join(", ")
+        : "unknown";
       const rows = [
         ["Language", result.language_detected || "unknown"],
-        ["Budget", result.budget_extracted ? `${result.budget_extracted} AED` : "unknown"],
+        ["Budget", result.budget_extracted ? formatBudget(result) : "unknown"],
         ["Age", result.age_months_extracted !== null && result.age_months_extracted !== undefined ? `${result.age_months_extracted} months` : "unknown"],
+        ["Recipient", constraints.recipient || "unknown"],
+        ["Preferences", preferences],
+        ["Occasion", constraints.occasion || "unknown"],
         ["Behavior", result.out_of_scope ? "refusal" : "recommendation"],
         ["Avg Confidence", confidences.length ? `${Math.round(avgConfidence * 100)}%` : "not applicable"],
-        ["Uncertainty Note", result.uncertainty_note_en ? "present" : "not needed"]
+        ["Uncertainty Reason", result.uncertainty_note_en || "not needed"]
       ];
       decisionMatrix.innerHTML = rows.map(([label, value]) => `
         <div class="flex items-center justify-between border-b border-accent/60 py-2 last:border-b-0">
@@ -177,7 +296,7 @@
 
       metaGrid.innerHTML = [
         metaCard("Language", result.language_detected === "ar" ? "Arabic" : "English"),
-        metaCard("Budget", result.budget_extracted ? `${result.budget_extracted} AED` : "Not specified"),
+        metaCard("Budget", formatBudget(result)),
         metaCard("Age", result.age_months_extracted !== null && result.age_months_extracted !== undefined ? `${result.age_months_extracted} months` : "Not specified")
       ].join("");
 
@@ -189,6 +308,7 @@
             <p class="max-w-3xl leading-8 text-text-muted">${escapeHtml(result.uncertainty_note_en || "Try adding the baby age, budget, or occasion.")}</p>
             <p class="mt-4 max-w-3xl leading-8 text-text-muted" dir="rtl">${escapeHtml(result.uncertainty_note_ar || "")}</p>
           </article>
+          ${improvementBox(result)}
         `;
         return;
       }
@@ -203,7 +323,7 @@
                 <h2 class="font-sans-round text-xl font-bold leading-7">${escapeHtml(item.product_name_en)}</h2>
                 <p class="mt-2 text-sm leading-6 text-text-muted" dir="rtl">${escapeHtml(item.product_name_ar)}</p>
               </div>
-              <div class="shrink-0 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white">${escapeHtml(item.price_aed)} AED</div>
+              <div class="shrink-0 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white">${formatPrice(item.price_aed, result)}</div>
             </div>
             <div class="mb-4 flex flex-wrap gap-2 text-sm">
               <span class="rounded-full bg-accent px-3 py-1">${escapeHtml(item.age_suitability)}</span>
@@ -215,6 +335,8 @@
           </article>
         `;
       }).join("");
+
+      resultsGrid.insertAdjacentHTML("beforeend", improvementBox(result));
     }
 
     async function loadResults(query) {
@@ -251,6 +373,18 @@
       const query = queryInput.value.trim();
       window.history.pushState({}, "", `/results?q=${encodeURIComponent(query)}`);
       loadResults(query);
+    });
+
+    resultsGrid.addEventListener("click", (event) => {
+      const chip = event.target.closest(".suggestion-chip");
+      if (!chip) return;
+      showInlineSuggestion(chip.dataset.suggestion, chip.dataset.intent);
+    });
+
+    resultsGrid.addEventListener("submit", (event) => {
+      if (event.target.id !== "inline-suggestion-form") return;
+      event.preventDefault();
+      applyInlineSuggestions();
     });
 
     loadResults(initialQuery);

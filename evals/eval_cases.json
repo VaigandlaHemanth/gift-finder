@@ -210,5 +210,73 @@
     "max_age": null,
     "notes": "Hard: bundle request, specific postpartum timing, relationship context",
     "adversarial": false
+  },
+  {
+    "id": "EVAL-016",
+    "query": "a nice gift",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": null,
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: very vague query — should recommend cautiously with low confidence and refinement suggestions",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-017",
+    "query": "organic bamboo teether under 50 AED",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Toys",
+      "Feeding"
+    ],
+    "max_budget": 50,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Hallucination guard: should not invent unsupported organic/bamboo claims; evidence must stay catalog-grounded",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-018",
+    "query": "هدية حلوة للبيبي",
+    "language": "ar",
+    "expected_behavior": "recommend",
+    "expected_categories": null,
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: Arabic vague query — should show Arabic refinement suggestions",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-019",
+    "query": "هدية baby عمره 9 months under 120 AED",
+    "language": "ar",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Toys",
+      "Feeding",
+      "Bath",
+      "Books"
+    ],
+    "max_budget": 120,
+    "min_age": 8,
+    "max_age": 10,
+    "notes": "Hard: mixed Arabic-English query should still extract age and budget",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-020",
+    "query": "smartphone for my adult brother",
+    "language": "en",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Adversarial: adult electronics gift is outside baby/mom scope",
+    "adversarial": true
   }
 ]

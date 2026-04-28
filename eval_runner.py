@@ -8,11 +8,21 @@ import sys
 import os
 from datetime import datetime
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from gift_finder import find_gifts
 from catalog import load_products_to_chromadb
 from schema import GiftFinderResponse
+
+
+def load_catalog_map(products_path: str = "data/products.json") -> dict:
+    """Load catalog records for grounding checks."""
+    with open(products_path, "r", encoding="utf-8") as f:
+        products = json.load(f)
+    return {product["id"]: product for product in products}
 
 
 def run_eval(test_cases_path: str = "evals/eval_cases.json"):
@@ -21,6 +31,7 @@ def run_eval(test_cases_path: str = "evals/eval_cases.json"):
     # Load catalog first
     print("Initializing catalog...")
     load_products_to_chromadb("data/products.json")
+    catalog_by_id = load_catalog_map("data/products.json")
 
     # Load test cases
     with open(test_cases_path, "r", encoding="utf-8") as f:
@@ -37,7 +48,7 @@ def run_eval(test_cases_path: str = "evals/eval_cases.json"):
 
         try:
             response = find_gifts(case["query"])
-            scores = score_case(case, response)
+            scores = score_case(case, response, catalog_by_id)
             results.append({
                 "case_id": case["id"],
                 "query": case["query"],
@@ -55,14 +66,14 @@ def run_eval(test_cases_path: str = "evals/eval_cases.json"):
         except Exception as e:
             print(f"  ERROR: {e}")
             total_score += 0
-            max_score += 5
+            max_score += 6
             results.append({
                 "case_id": case["id"],
                 "query": case["query"],
                 "error": str(e),
                 "passed": False,
                 "total_score": 0,
-                "max_score": 5
+                "max_score": 6
             })
 
     # Generate report
@@ -105,7 +116,7 @@ def run_eval(test_cases_path: str = "evals/eval_cases.json"):
     return report
 
 
-def score_case(case: dict, response: GiftFinderResponse) -> list:
+def score_case(case: dict, response: GiftFinderResponse, catalog_by_id: dict) -> list:
     """Score a single test case against rubric."""
     scores = []
 
@@ -173,7 +184,16 @@ def score_case(case: dict, response: GiftFinderResponse) -> list:
             )
         })
 
-        # Criterion 5: Category accuracy (if specified)
+        # Criterion 5: Grounding validity
+        grounding_good, grounding_reason = check_grounding(response, catalog_by_id)
+        scores.append({
+            "criterion": "Grounding Validity",
+            "score": 1 if grounding_good else 0,
+            "max": 1,
+            "reason": grounding_reason
+        })
+
+        # Criterion 6: Category accuracy (if specified)
         if case.get("expected_categories"):
             actual_cats = [r.category_en for r in response.recommendations]
             matches = any(cat in actual_cats for cat in case["expected_categories"])
@@ -193,11 +213,22 @@ def score_case(case: dict, response: GiftFinderResponse) -> list:
     else:
         # For refusal cases, check refusal quality
         has_explanation = response.uncertainty_note_en is not None
+        has_refinement = bool(response.suggested_refinements_en or response.suggested_refinements_ar)
         scores.append({
             "criterion": "Reasoning Quality",
-            "score": 1 if has_explanation else 0,
+            "score": 1 if has_explanation and has_refinement else 0,
             "max": 1,
-            "reason": "Refusal has explanation" if has_explanation else "Refusal lacks explanation FAIL"
+            "reason": (
+                "Refusal has explanation and refinement suggestions"
+                if has_explanation and has_refinement
+                else "Refusal lacks explanation or refinement suggestions FAIL"
+            )
+        })
+        scores.append({
+            "criterion": "Grounding Validity",
+            "score": 1,
+            "max": 1,
+            "reason": "N/A for refusal case PASS"
         })
         scores.append({
             "criterion": "Category Accuracy",
@@ -207,6 +238,34 @@ def score_case(case: dict, response: GiftFinderResponse) -> list:
         })
 
     return scores
+
+
+def check_grounding(response: GiftFinderResponse, catalog_by_id: dict) -> tuple[bool, str]:
+    """Verify recommendations point to real products and expose catalog evidence."""
+    for rec in response.recommendations:
+        product = catalog_by_id.get(rec.product_id)
+        if not product:
+            return False, f"{rec.product_id} is not in data/products.json FAIL"
+        if rec.product_name_en != product["name_en"] or rec.price_aed != product["price_aed"]:
+            return False, f"{rec.product_id} output does not match catalog name/price FAIL"
+        if len(rec.evidence_points_en) < 3 or len(rec.evidence_points_ar) < 3:
+            return False, f"{rec.product_id} has insufficient evidence bullets FAIL"
+        evidence_text = " ".join(rec.evidence_points_en).lower()
+        required_values = [
+            str(product["price_aed"]).lower(),
+            str(product["age_months_min"]).lower(),
+            str(product["age_months_max"]).lower(),
+            str(product["avg_rating"]).lower(),
+        ]
+        if not all(value in evidence_text for value in required_values):
+            return False, f"{rec.product_id} evidence missing catalog price/age/rating FAIL"
+        if not 0 <= rec.retrieval_similarity <= 1:
+            return False, f"{rec.product_id} retrieval similarity out of range FAIL"
+
+    if any(rec.confidence < 0.7 for rec in response.recommendations) and not response.uncertainty_note_en:
+        return False, "Low-confidence recommendation lacks uncertainty note FAIL"
+
+    return True, "Product IDs, catalog facts, evidence bullets, and uncertainty are grounded PASS"
 
 
 if __name__ == "__main__":

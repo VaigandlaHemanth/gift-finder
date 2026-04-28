@@ -2,11 +2,11 @@
 
 ## Latest Run
 
-Overall Score: 75/75 (100.0%)
-Passed Cases: 15/15
-Failed Cases: 0/15
+Expanded Score: 118/120 (98.3%)
+Passed Cases: 19/20
+Failed Cases: 1/20
 
-All evaluation cases passed across correct behavior, language match, schema validity, reasoning quality, category accuracy, and uncertainty handling.
+The original 15-case suite passed at 75/75 (100.0%). I then expanded the suite to 20 cases and added a new grounding-validity criterion. The expanded run scored 118/120. The only miss was a mixed Arabic-English query during Groq rate-limit fallback; after the run, I fixed the deterministic fallback by improving mixed-language detection and adding constraint-based retrieval retry. A targeted smoke test confirmed that case now detects Arabic, extracts `120 AED` and `9 months`, and returns 3 catalog-grounded recommendations even while Groq is rate-limited.
 
 ## Evaluation Framework
 
@@ -16,13 +16,14 @@ The evals check both recommendation quality and safety behavior. In particular, 
 
 | Criterion | Weight | Max Score | How Measured |
 |-----------|--------|-----------|--------------|
-| Correct Behavior | 20% | 1 | Does it recommend when it should and refuse when it should? |
-| Language Match | 20% | 1 | Does output language match input language? |
-| Schema Validity | 20% | 1 | Does output validate against Pydantic schema? |
-| Reasoning Quality | 20% | 1 | Are reasons specific and detailed (not generic)? |
-| Category Accuracy | 20% | 1 | Do recommendations match expected categories? |
+| Correct Behavior | 1 pt | 1 | Does it recommend when it should and refuse when it should? |
+| Language Match | 1 pt | 1 | Does output language match input language? |
+| Schema Validity | 1 pt | 1 | Does output validate against Pydantic schema? |
+| Reasoning Quality | 1 pt | 1 | Are reasons specific and detailed, and do uncertain cases say so? |
+| Grounding Validity | 1 pt | 1 | Do product IDs exist in the catalog and evidence bullets match product facts? |
+| Category Accuracy | 1 pt | 1 | Do recommendations match expected categories? |
 
-**Total per case: 5 points**
+**Total per case: 6 points**
 
 ## Test Cases
 
@@ -104,6 +105,18 @@ The evals check both recommendation quality and safety behavior. In particular, 
 - **Type**: Hard
 - **Why it matters**: Bundle request, specific postpartum timing, relationship context
 
+#### EVAL-017: organic bamboo teether under 50 AED
+- **Language**: EN
+- **Expected**: Recommend only if grounded in retrieved catalog facts
+- **Type**: Hard / hallucination guard
+- **Why it matters**: The query asks for unsupported material claims. The system must not invent "organic" or "bamboo" if those facts are not in `data/products.json`.
+
+#### EVAL-019: هدية baby عمره 9 months under 120 AED
+- **Language**: AR/mixed
+- **Expected**: Recommend
+- **Type**: Hard
+- **Why it matters**: Mixed Arabic-English input should still preserve Arabic UX and extract age/budget constraints.
+
 ### Adversarial Cases
 
 #### EVAL-009: gift for my dog
@@ -132,7 +145,7 @@ python eval_runner.py
 
 This will:
 1. Load the product catalog into ChromaDB
-2. Run all 15 test cases through the full pipeline
+2. Run all 20 test cases through the full pipeline
 3. Score each against the rubric
 4. Generate `evals/eval_report.json` with detailed results
 
@@ -154,9 +167,9 @@ This will:
 After running, fill in:
 
 ```
-Overall Score: ___/75 (___%)
-Passed Cases: ___/15
-Failed Cases: ___/15
+Overall Score: ___/120 (___%)
+Passed Cases: ___/20
+Failed Cases: ___/20
 
 Top Failure Modes:
 1. ________________

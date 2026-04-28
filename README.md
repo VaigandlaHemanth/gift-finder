@@ -17,6 +17,12 @@ pinned: false
 
 An intelligent, bilingual (English/Arabic) gift finder that transforms natural language queries like "thoughtful gift for a friend with a 6-month-old, under 200 AED" into curated, structured recommendations with native Arabic copy, confidence scores, and graceful uncertainty handling. Built with Groq LLaMA 3.3 70B, local sentence-transformer embeddings, ChromaDB RAG, FastAPI, HTML/CSS, and Pydantic schema validation — all 100% free tier.
 
+## Prototype Access
+
+- Live demo: https://vaigandlahemanth-mumzworld-gift-finder.hf.space
+- GitHub repo: https://github.com/VaigandlaHemanth/gift-finder
+- Track: A — AI Engineering Intern
+
 ## Setup (Under 5 Minutes)
 
 ### Prerequisites
@@ -83,7 +89,7 @@ LLM Re-ranking + Reasoning (Groq LLaMA 3.3 70B generates bilingual reasons)
     ↓
 Structured Output Validation (Pydantic v2 schema + uncertainty validators)
     ↓
-HTML Results Page (cards + refusal state + raw JSON drawer)
+HTML Results Page (cards + improvement suggestions + refusal/refinement state + raw JSON drawer)
 ```
 
 ### Reliability Guardrails
@@ -91,8 +97,10 @@ HTML Results Page (cards + refusal state + raw JSON drawer)
 1. **Retrieval vs generation**: retrieval finds matching products from `data/products.json`; generation only ranks/explains those retrieved products.
 2. **Grounding**: the final response is post-processed against retrieved catalog IDs. Product names, prices, categories, age ranges, stock status, and reasons are overwritten from product data.
 3. **Hallucination control**: the model is instructed not to invent features, and final reasons are rebuilt from catalog fields instead of trusting free-form LLM claims.
-4. **Structured output**: every response validates through the Pydantic `GiftFinderResponse` schema before reaching the UI.
-5. **Uncertainty**: unsupported, vague, low-budget, age-out-of-scope, and non-baby/mom requests return an explicit "I do not know / need more info" style note in English and Arabic.
+4. **Catalog evidence**: each response includes 3-5 evidence bullets from product ID, price, category, age range, rating/reviews, stock, tags, and retrieval similarity. These stay in the validated JSON/transparency layer so reviewers can inspect grounding without cluttering the main shopping UI.
+5. **Structured output**: every response validates through the Pydantic `GiftFinderResponse` schema before reaching the UI.
+6. **Uncertainty**: unsupported, vague, low-budget, age-out-of-scope, and non-baby/mom requests return an explicit "I do not know / need more info" style note in English and Arabic, plus refinement suggestions.
+7. **Currency display**: catalog prices are stored in AED, but INR queries display approximate INR prices in the UI using a fixed prototype conversion rate.
 
 ### Key Design Decisions
 
@@ -110,13 +118,20 @@ HTML Results Page (cards + refusal state + raw JSON drawer)
 
 | Criterion | Weight | Description |
 |-----------|--------|-------------|
-| Correct Behavior | 20% | Recommends when appropriate, refuses when out of scope |
-| Language Match | 20% | Detects input language, responds in same language |
-| Schema Validity | 20% | Output validates against Pydantic schema |
-| Reasoning Quality | 20% | Reasons are specific, not generic; Arabic is native not translated |
-| Category Accuracy | 20% | Matches expected categories for constrained queries |
+| Correct Behavior | 1 pt | Recommends when appropriate, refuses when out of scope |
+| Language Match | 1 pt | Detects input language, responds in same language |
+| Schema Validity | 1 pt | Output validates against Pydantic schema |
+| Reasoning Quality | 1 pt | Reasons are specific, not generic; uncertain cases include uncertainty |
+| Grounding Validity | 1 pt | Product IDs exist in catalog and evidence bullets match catalog fields |
+| Category Accuracy | 1 pt | Matches expected categories for constrained queries |
 
-### Test Cases (15 total)
+### Latest Expanded Run
+
+Expanded eval result: **118/120 (98.3%)**, 19/20 cases fully passed.
+
+The single missed case was a mixed Arabic-English query during a Groq rate-limit fallback. I fixed the deterministic mixed-language path afterwards by lowering the Arabic detection threshold and adding a constraint-based retrieval retry. A targeted smoke test then returned Arabic language detection, extracted `120 AED` and `9 months`, and produced 3 catalog-grounded recommendations even while Groq was rate-limited.
+
+### Test Cases (20 total)
 
 | ID | Query | Type | Expected |
 |----|-------|------|----------|
@@ -135,6 +150,11 @@ HTML Results Page (cards + refusal state + raw JSON drawer)
 | EVAL-013 | gift for teething baby, something soothing | Hard EN | Recommend |
 | EVAL-014 | أقل من 30 درهم | Adversarial AR | Refuse |
 | EVAL-015 | nursing pillow and breast pump bundle | Hard EN | Recommend |
+| EVAL-016 | a nice gift | Vague EN | Recommend with uncertainty |
+| EVAL-017 | organic bamboo teether under 50 AED | Hallucination guard | Recommend only grounded facts |
+| EVAL-018 | هدية حلوة للبيبي | Vague AR | Recommend with Arabic refinements |
+| EVAL-019 | هدية baby عمره 9 months under 120 AED | Mixed language | Recommend |
+| EVAL-020 | smartphone for my adult brother | Out of scope | Refuse |
 
 ### Running Evals
 ```bash
@@ -142,6 +162,22 @@ python eval_runner.py
 ```
 
 Results are saved to `evals/eval_report.json` with detailed results.
+
+## AI Usage Note
+
+- Groq LLaMA 3.3 70B powers constraint extraction and recommendation re-ranking.
+- `all-MiniLM-L6-v2` creates local embeddings for ChromaDB retrieval.
+- Claude/Codex were used as pair-coding assistants for scaffolding, debugging, eval design, and documentation.
+- I overruled generated code where grounding or uncertainty needed deterministic guardrails.
+- Key prompts are summarized below and the material prompt rules are committed in `src/gift_finder.py`.
+
+## Time Log
+
+- 45 min: problem selection, stack choice, synthetic catalog review.
+- 90 min: RAG pipeline, schema validation, uncertainty guardrails.
+- 45 min: FastAPI + custom HTML landing/results flow.
+- 60 min: eval suite, refusal cases, grounding checks.
+- 45 min: hosting, documentation, GitHub/Hugging Face polish.
 
 ## Tooling & AI Assistance
 
@@ -236,7 +272,7 @@ mumzworld-gift-finder/
 │   ├── gift_finder.py     # Main LLM pipeline
 │   └── language_utils.py  # Language detection + formatting
 └── evals/
-    ├── eval_cases.json    # 15 test cases
+    ├── eval_cases.json    # 20 test cases
     └── eval_report.json   # Generated evaluation report
 ```
 
@@ -245,7 +281,7 @@ mumzworld-gift-finder/
 - **Grounded in input**: Model returns null/refuses when answer not supported by catalog
 - **Multilingual native copy**: Arabic reads like native copy, not translation (enforced by validators)
 - **Structured output validates**: Pydantic schema with custom validators; failures are explicit
-- **Evals before done**: 15 test cases covering easy, hard, edge, and adversarial inputs
+- **Evals before done**: 20 test cases covering easy, hard, edge, adversarial, mixed-language, and hallucination-guard inputs
 - **Documentation first-class**: This README + inline comments + architecture explanation
 
 ## License

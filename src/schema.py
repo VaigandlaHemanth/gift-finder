@@ -3,7 +3,7 @@ Pydantic schemas for structured output validation.
 All outputs must validate against these schemas.
 """
 from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import List, Optional
+from typing import Any, List, Optional
 
 
 class GiftRecommendation(BaseModel):
@@ -19,6 +19,24 @@ class GiftRecommendation(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score 0-1")
     age_suitability: str = Field(..., description="Age range this product suits")
     in_stock: bool = Field(default=True, description="Whether product is in stock")
+    evidence_points_en: List[str] = Field(
+        default_factory=list,
+        min_length=3,
+        max_length=5,
+        description="Grounding bullets copied from catalog fields in English",
+    )
+    evidence_points_ar: List[str] = Field(
+        default_factory=list,
+        min_length=3,
+        max_length=5,
+        description="Grounding bullets copied from catalog fields in Arabic",
+    )
+    retrieval_similarity: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Retriever similarity score for this product",
+    )
 
     @field_validator('reason_en')
     @classmethod
@@ -49,6 +67,21 @@ class GiftFinderResponse(BaseModel):
     language_detected: str = Field(..., pattern="^(en|ar)$")
     budget_extracted: Optional[float] = Field(None, description="Budget extracted from query")
     age_months_extracted: Optional[int] = Field(None, description="Age in months extracted from query")
+    display_currency: str = Field(default="AED", pattern="^(AED|INR)$")
+    extracted_constraints: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Deterministic/LLM merged constraints used by the pipeline",
+    )
+    suggested_refinements_en: List[str] = Field(
+        default_factory=list,
+        max_length=4,
+        description="English chips for making uncertain/refusal queries more answerable",
+    )
+    suggested_refinements_ar: List[str] = Field(
+        default_factory=list,
+        max_length=4,
+        description="Arabic chips for making uncertain/refusal queries more answerable",
+    )
 
     @model_validator(mode="after")
     def validate_uncertainty_handling(self):

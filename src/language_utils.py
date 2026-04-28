@@ -19,7 +19,7 @@ def detect_language(text: str) -> str:
 
     # Quick heuristic: check for Arabic Unicode range
     arabic_chars = sum(1 for c in text if '\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F')
-    if arabic_chars > len(text) * 0.3:
+    if arabic_chars >= 3 or arabic_chars > len(text) * 0.3:
         return "ar"
 
     try:
