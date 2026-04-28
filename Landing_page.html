@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mumzworld AI Gift Finder</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Playfair+Display:wght@600&amp;family=Quicksand:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#E91E63",
+            "background": "#FAFAFA",
+            "surface": "rgba(255, 255, 255, 0.6)",
+            "text": "#1A1A1A",
+            "muted": "#8E8E93",
+            "accent": "#FCE4EC",
+            "glow": "rgba(233, 30, 99, 0.15)",
+          },
+          fontFamily: {
+            "serif": ["'Playfair Display'", "serif"],
+            "sans-round": ["'Quicksand'", "sans-serif"],
+            "sans-ui": ["'Inter'", "sans-serif"],
+          },
+          borderRadius: {
+            "DEFAULT": "16px",
+            "lg": "24px",
+            "xl": "32px",
+            "full": "9999px",
+          },
+          boxShadow: {
+            "ambient": "0 12px 48px rgba(233, 30, 99, 0.08)",
+            "ambient-focus": "0 15px 58px rgba(233, 30, 99, 0.25)",
+          },
+          backgroundImage: {
+            'glow-radial': 'radial-gradient(circle at center, rgba(233, 30, 99, 0.1) 0%, transparent 60%)',
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background text-text font-sans-ui min-h-screen overflow-hidden antialiased">
+<!-- Main Container -->
+<main class="relative flex h-screen w-full items-center justify-center">
+<!-- Ambient Radial Glow Background -->
+<div class="absolute inset-0 bg-glow-radial opacity-70 pointer-events-none"></div>
+<!-- Content Wrapper -->
+<div class="relative z-10 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 w-full max-w-4xl mx-auto">
+<!-- Shared Component: CTASection (Adapted for strict adherence while respecting design system) -->
+<div class="flex flex-col w-full">
+<!-- Typography Section -->
+<div class="flex flex-col gap-6 text-center mb-10">
+<h1 class="font-serif text-[#1A1A1A] text-[48px] sm:text-[64px] font-semibold leading-tight max-w-[720px] mx-auto tracking-tight">
+            Who are we spoiling today?
+          </h1>
+<p class="font-sans-round text-[#8E8E93] text-[20px] sm:text-[24px] font-medium leading-normal max-w-[720px] mx-auto">
+            The AI assistant that finds gifts they’ll actually love.
+          </p>
+</div>
+<!-- Magic Input Bar Section -->
+<div class="flex w-full justify-center">
+<label class="group relative flex w-full max-w-[640px] h-[72px] cursor-text">
+<!-- Glassmorphic Input Container -->
+<div class="flex w-full items-center rounded-xl bg-surface backdrop-blur-[24px] border border-[#FCE4EC] shadow-ambient transition-all duration-300 ease-in-out focus-within:border-primary focus-within:shadow-ambient-focus focus-within:bg-[rgba(255,255,255,0.8)] overflow-hidden pl-6 pr-2">
+<input autocomplete="off" class="flex-1 bg-transparent border-none outline-none text-[#1A1A1A] text-lg font-sans-ui placeholder:text-[#8E8E93] focus:ring-0 w-full" id="gift-query" name="query" placeholder="e.g., A practical gift for a 2-year-old boy..." type="text"/>
+<!-- Submit Button -->
+<div class="flex items-center justify-center shrink-0 ml-4">
+<button aria-label="Find gifts" class="flex items-center justify-center w-[48px] h-[48px] rounded-full bg-primary text-white shadow-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" id="find-button" type="button">
+<span class="text-xl">✨</span>
+</button>
+</div>
+</div>
+</label>
+</div>
+<p class="hidden mt-4 text-center text-sm text-primary font-medium" id="query-error">Tell me who the gift is for first.</p>
+</div>
+</div>
+</main>
+<script>
+  const input = document.getElementById("gift-query");
+  const button = document.getElementById("find-button");
+  const error = document.getElementById("query-error");
+
+  function submitQuery() {
+    const query = input.value.trim();
+    if (!query) {
+      error.classList.remove("hidden");
+      input.focus();
+      return;
+    }
+    window.location.href = `/results?q=${encodeURIComponent(query)}`;
+  }
+
+  button.addEventListener("click", submitQuery);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") submitQuery();
+  });
+  input.addEventListener("input", () => error.classList.add("hidden"));
+</script>
+</body></html>

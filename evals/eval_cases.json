@@ -1,0 +1,214 @@
+[
+  {
+    "id": "EVAL-001",
+    "query": "gift for newborn, under 100 AED",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Clothing",
+      "Bath",
+      "Books",
+      "Feeding"
+    ],
+    "max_budget": 100,
+    "min_age": 0,
+    "max_age": 3,
+    "notes": "Easy case: clear budget, clear age, English",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-002",
+    "query": "هدية لطفل عمره 6 أشهر، أقل من 150 درهم",
+    "language": "ar",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Toys",
+      "Feeding",
+      "Bath",
+      "Books"
+    ],
+    "max_budget": 150,
+    "min_age": 5,
+    "max_age": 8,
+    "notes": "Easy case: Arabic input, clear constraints",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-003",
+    "query": "something nice for a baby",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": null,
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: vague query — should still recommend but flag low confidence",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-004",
+    "query": "gift under 10 AED",
+    "language": "en",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": 10,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: budget too low — should refuse gracefully",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-005",
+    "query": "gift for a new mom recovering from birth",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Postpartum"
+    ],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: mom not baby — should detect and recommend postpartum items",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-006",
+    "query": "gift for a 5-year-old",
+    "language": "en",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": null,
+    "min_age": 60,
+    "max_age": 72,
+    "notes": "Edge: too old for Mumzworld scope (0-36 months) — should refuse",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-007",
+    "query": "educational toy for a curious 18-month-old girl, under 200 AED",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Toys",
+      "Books"
+    ],
+    "max_budget": 200,
+    "min_age": 16,
+    "max_age": 20,
+    "notes": "Hard: specific, multi-constraint query",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-008",
+    "query": "هدية لصديقتي عندها طفل عمره سنة ونص وتحب الأشياء العملية",
+    "language": "ar",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Feeding",
+      "Travel",
+      "Health & Safety",
+      "Toys"
+    ],
+    "max_budget": null,
+    "min_age": 16,
+    "max_age": 20,
+    "notes": "Hard: Arabic, implicit age (1.5 years = 18 months), preference for practical items",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-009",
+    "query": "gift for my dog",
+    "language": "en",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Adversarial: completely out of scope — must refuse",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-010",
+    "query": "أريد هدية فاخرة لأختي التي أنجبت توأم قبل أسبوع",
+    "language": "ar",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Postpartum",
+      "Sleep",
+      "Feeding"
+    ],
+    "max_budget": null,
+    "min_age": 0,
+    "max_age": 1,
+    "notes": "Hard: Arabic, luxury preference, twins (needs multiples/durable), postpartum context",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-011",
+    "query": "best stroller for traveling to Dubai, lightweight and compact",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Travel"
+    ],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Hard: travel context, implicit need for compact stroller",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-012",
+    "query": "",
+    "language": "en",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Adversarial: empty query — must refuse",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-013",
+    "query": "gift for a baby who is teething and cranky, something soothing",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Toys",
+      "Feeding"
+    ],
+    "max_budget": null,
+    "min_age": 4,
+    "max_age": 12,
+    "notes": "Hard: symptom-based query, needs reasoning about teething products",
+    "adversarial": false
+  },
+  {
+    "id": "EVAL-014",
+    "query": "أقل من 30 درهم",
+    "language": "ar",
+    "expected_behavior": "refuse",
+    "expected_categories": [],
+    "max_budget": 30,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Edge: Arabic, budget too low — should refuse gracefully in Arabic",
+    "adversarial": true
+  },
+  {
+    "id": "EVAL-015",
+    "query": "nursing pillow and breast pump bundle for my wife, she's 2 weeks postpartum",
+    "language": "en",
+    "expected_behavior": "recommend",
+    "expected_categories": [
+      "Postpartum",
+      "Feeding"
+    ],
+    "max_budget": null,
+    "min_age": null,
+    "max_age": null,
+    "notes": "Hard: bundle request, specific postpartum timing, relationship context",
+    "adversarial": false
+  }
+]
