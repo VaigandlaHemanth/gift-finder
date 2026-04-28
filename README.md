@@ -1,3 +1,13 @@
+---
+title: Mumzworld Gift Finder
+emoji: 🎁
+colorFrom: pink
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Mumzworld AI Gift Finder
 
 > AI-native gift recommendation engine for the Middle East's largest motherhood e-commerce platform.
