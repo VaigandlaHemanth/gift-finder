@@ -1,5 +1,5 @@
 """
-Catalog loader and vector search for the Mumzworld gift finder.
+Catalog loader and vector search for gift-finder.
 
 The catalog is intentionally local: reviewers only need a Groq key for the
 LLM, while retrieval runs with sentence-transformers + ChromaDB on their
@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-COLLECTION_NAME = "mumzworld_products"
+COLLECTION_NAME = "gift_finder_products"
 PERSIST_DIR = "chroma_db"
 
 _embedding_model: Any | None = None

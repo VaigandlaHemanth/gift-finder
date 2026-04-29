@@ -76,6 +76,12 @@ I used the custom `Landing_page.html` and `Results_page.html` as the actual inte
 
 The UI includes an improvement panel that can collect multiple missing details at once. This keeps the "need more information" behavior useful without interrupting the user with browser popups. Catalog prices are stored in AED; if a user asks in INR, the prototype displays approximate INR prices with a fixed conversion rate to avoid adding another external API key.
 
+## Language and Currency Detection
+
+The system detects Arabic with a Unicode heuristic plus `langdetect`, then renders the visible UI in only that language. English queries show English cards, reasons, refusals, and suggestions. Arabic queries show Arabic cards, reasons, refusals, and suggestions. Bilingual fields remain in the raw JSON because they are useful for validation and reviewer transparency.
+
+Currency detection is deterministic. AED, درهم, or no explicit currency uses AED. INR, ₹, rupees, or Rs converts the extracted budget into AED for catalog filtering, then displays approximate INR prices in the UI. This is a prototype convenience for non-GCC reviewers; the catalog source of truth remains AED.
+
 ## Schema Design
 
 ### Why Pydantic v2?
@@ -164,7 +170,7 @@ The grading rubric weights uncertainty handling at 15%. A system that confidentl
 - **Would add if**: Production deployment with user accounts
 
 ### Cut: Real Inventory Integration
-- **Why**: No access to Mumzworld ERP; using synthetic in_stock flags
+- **Why**: No access to live ERP inventory; using synthetic in_stock flags
 - **Impact**: Low for prototype; critical for production
 - **Would add if**: API access to inventory system
 
@@ -187,14 +193,14 @@ The grading rubric weights uncertainty handling at 15%. A system that confidentl
 | Documentation | 30 min | README, EVALS.md, TRADEOFFS.md |
 | Loom recording | 15 min | 5 inputs including 1 refusal |
 | Hosting and polish | 45 min | Hugging Face Space, GitHub snapshot, transparency and suggestion UI |
-| **Total** | **~5.5 hours** | Slightly over 5 hours to add hosted demo and stronger eval polish |
+| **Total** | **~6 hours** | Slightly over 5 hours to add hosted demo, same-language UI, and stronger eval polish |
 
 ## Production Path
 
 If this were going to production:
 
 1. **Swap ChromaDB for Pinecone/Weaviate** for persistent, scalable vector search
-2. **Add fine-tuned embedding model** on Mumzworld product corpus for better retrieval
+2. **Add fine-tuned embedding model** on the real product corpus for better retrieval
 3. **Integrate real inventory API** for live stock levels and pricing
 4. **Add user session history** for personalized recommendations
 5. **Implement A/B testing** with conversion rate as North Star metric

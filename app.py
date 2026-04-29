@@ -1,5 +1,5 @@
 """
-FastAPI app for the HTML-based Mumzworld AI Gift Finder demo.
+FastAPI app for the HTML-based gift-finder demo.
 
 Run locally:
     uvicorn app:app --reload
@@ -16,7 +16,7 @@ from src.gift_finder import find_gifts
 
 BASE_DIR = Path(__file__).resolve().parent
 
-app = FastAPI(title="Mumzworld AI Gift Finder", version="1.0.0")
+app = FastAPI(title="gift-finder", version="1.0.0")
 
 
 class GiftRequest(BaseModel):

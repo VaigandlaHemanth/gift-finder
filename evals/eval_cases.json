@@ -80,7 +80,7 @@
     "max_budget": null,
     "min_age": 60,
     "max_age": 72,
-    "notes": "Edge: too old for Mumzworld scope (0-36 months) — should refuse",
+    "notes": "Edge: too old for prototype scope (0-36 months) — should refuse",
     "adversarial": true
   },
   {

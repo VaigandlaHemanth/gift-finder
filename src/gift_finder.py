@@ -711,7 +711,7 @@ def generate_recommendations(
             f"لا أعرف أي منتج في الكتالوج يناسب هذا الطلب: {query}",
         )
 
-    system_prompt = f"""You are Mumzworld's AI Gift Finder for baby and mom gifts in the UAE.
+    system_prompt = f"""You are gift-finder, an AI assistant for baby and mom gifts in the UAE.
 This is a two-step RAG system:
 - Retrieval has already found possible catalog products.
 - Generation may only choose from and explain those retrieved products.

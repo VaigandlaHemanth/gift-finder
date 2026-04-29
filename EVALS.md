@@ -6,11 +6,11 @@ Expanded Score: 120/120 (100.0%)
 Passed Cases: 20/20
 Failed Cases: 0/20
 
-The original 15-case suite passed at 75/75 (100.0%). I then expanded the suite to 20 cases and added a new grounding-validity criterion. The latest expanded run scored 120/120, including vague queries, Arabic-only UX, mixed Arabic-English input, hallucination guardrails, and adversarial out-of-scope refusals.
+The original 15-case suite passed at 75/75 (100.0%). I then expanded the suite to 20 cases and added a new grounding-validity criterion. The latest expanded run scored 120/120, including vague queries, same-language visible UX, mixed Arabic-English input, hallucination guardrails, and adversarial out-of-scope refusals.
 
 ## Evaluation Framework
 
-The evals check both recommendation quality and safety behavior. In particular, the system must separate retrieval from generation, ground output in `data/products.json`, validate JSON schema, and say it is uncertain or needs more information when the catalog does not support a confident answer.
+The evals check both recommendation quality and safety behavior. In particular, the system must separate retrieval from generation, ground output in `data/products.json`, validate JSON schema, match the user's detected language, and say it is uncertain or needs more information when the catalog does not support a confident answer. Currency detection is deterministic: AED/درهم stays AED, and INR/₹/rupees is converted to AED for filtering then displayed back as approximate INR.
 
 ### Rubric
 
@@ -77,7 +77,7 @@ The evals check both recommendation quality and safety behavior. In particular, 
 - **Language**: EN
 - **Expected**: Refuse (age out of scope)
 - **Type**: Edge
-- **Why it matters**: Age boundary test; Mumzworld specializes in 0-36 months
+- **Why it matters**: Age boundary test; the prototype specializes in 0-36 months
 
 ### Hard Cases
 
