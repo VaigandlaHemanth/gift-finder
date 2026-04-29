@@ -72,7 +72,7 @@ I explicitly avoided the Pediatric Symptom Triage option because:
 
 ## UI and Hosting
 
-I used the custom `Landing_page.html` and `Results_page.html` as the actual interface instead of Streamlit. FastAPI serves both pages and exposes `/api/find`, which keeps the Groq API key on the server and lets the same repo deploy as a free Docker app on Hugging Face Spaces.
+I used the custom `Landing_page.html` and `Results_page.html` as the actual interface instead of Streamlit. FastAPI serves both pages and exposes `/api/find`, which keeps the Groq API key on the server and lets the same repo deploy as a free Docker app on Hugging Face Spaces. The backend keeps bilingual structured fields for validation, while the visible UI renders only the detected user language.
 
 The UI includes an improvement panel that can collect multiple missing details at once. This keeps the "need more information" behavior useful without interrupting the user with browser popups. Catalog prices are stored in AED; if a user asks in INR, the prototype displays approximate INR prices with a fixed conversion rate to avoid adding another external API key.
 
@@ -141,7 +141,7 @@ Retrieval is responsible for finding candidate products from `data/products.json
 | Empty query | Input validation | Refuse with help message |
 | Not baby-related | LLM out_of_scope_reason | Refuse with scope clarification |
 | No candidates after filter | Retrieval + filtering | Refuse with suggestion to broaden |
-| Low confidence (<0.5) | LLM self-assessment | Recommend with uncertainty note |
+| Low confidence (<0.7) | LLM/self-assessment + retrieval score | Recommend with uncertainty note and refinement suggestions |
 
 ### Evidence-Grounded Output
 

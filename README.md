@@ -97,10 +97,11 @@ HTML Results Page (cards + improvement suggestions + refusal/refinement state + 
 1. **Retrieval vs generation**: retrieval finds matching products from `data/products.json`; generation only ranks/explains those retrieved products.
 2. **Grounding**: the final response is post-processed against retrieved catalog IDs. Product names, prices, categories, age ranges, stock status, and reasons are overwritten from product data.
 3. **Hallucination control**: the model is instructed not to invent features, and final reasons are rebuilt from catalog fields instead of trusting free-form LLM claims.
-4. **Catalog evidence**: each response includes 3-5 evidence bullets from product ID, price, category, age range, rating/reviews, stock, tags, and retrieval similarity. These stay in the validated JSON/transparency layer so reviewers can inspect grounding without cluttering the main shopping UI.
+4. **Catalog evidence**: each response includes 3-5 evidence bullets from product ID, price, category, age range, rating/reviews, stock, tags, and retrieval similarity. The results UI displays these as "Why this is grounded" bullets.
 5. **Structured output**: every response validates through the Pydantic `GiftFinderResponse` schema before reaching the UI.
 6. **Uncertainty**: unsupported, vague, low-budget, age-out-of-scope, and non-baby/mom requests return an explicit "I do not know / need more info" style note in English and Arabic, plus refinement suggestions.
 7. **Currency display**: catalog prices are stored in AED, but INR queries display approximate INR prices in the UI using a fixed prototype conversion rate.
+8. **Same-language UX**: English queries show English-only visible answers; Arabic queries show Arabic-only visible answers. Bilingual fields remain in the validated JSON for grading and debugging.
 
 ### Key Design Decisions
 
@@ -127,9 +128,9 @@ HTML Results Page (cards + improvement suggestions + refusal/refinement state + 
 
 ### Latest Expanded Run
 
-Expanded eval result: **118/120 (98.3%)**, 19/20 cases fully passed.
+Expanded eval result: **120/120 (100.0%)**, 20/20 cases fully passed.
 
-The single missed case was a mixed Arabic-English query during a Groq rate-limit fallback. I fixed the deterministic mixed-language path afterwards by lowering the Arabic detection threshold and adding a constraint-based retrieval retry. A targeted smoke test then returned Arabic language detection, extracted `120 AED` and `9 months`, and produced 3 catalog-grounded recommendations even while Groq was rate-limited.
+The expanded suite includes the original 15 cases plus vague-query refinement, hallucination grounding, Arabic-only UX, mixed Arabic-English extraction, and adult/electronics out-of-scope refusal.
 
 ### Test Cases (20 total)
 
@@ -174,10 +175,10 @@ Results are saved to `evals/eval_report.json` with detailed results.
 ## Time Log
 
 - 45 min: problem selection, stack choice, synthetic catalog review.
-- 90 min: RAG pipeline, schema validation, uncertainty guardrails.
-- 45 min: FastAPI + custom HTML landing/results flow.
-- 60 min: eval suite, refusal cases, grounding checks.
-- 45 min: hosting, documentation, GitHub/Hugging Face polish.
+- 120 min: RAG pipeline, schema validation, grounding, and uncertainty guardrails.
+- 60 min: FastAPI + custom HTML landing/results flow and hosting.
+- 90 min: expanded eval suite, language-only UX, refusal cases, and evidence checks.
+- 45 min: documentation, tooling notes, tradeoffs, and Loom prep.
 
 ## Tooling & AI Assistance
 

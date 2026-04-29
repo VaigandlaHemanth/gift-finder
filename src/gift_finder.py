@@ -369,7 +369,7 @@ def _evidence_points(candidate: dict[str, Any]) -> tuple[list[str], list[str]]:
         f"السعر: {candidate['price_aed']} درهم",
         f"العمر المناسب: من {candidate['age_min']} إلى {candidate['age_max']} شهر",
         f"التقييم: {candidate['avg_rating']} من 5 بناءً على {candidate['num_reviews']} مراجعة",
-        f"{stock_ar}؛ الوسوم: {tags}",
+        f"{stock_ar} حسب حالة المخزون في الكتالوج",
     ]
     return evidence_en, evidence_ar
 

@@ -15,18 +15,10 @@
             primary: "#E91E63",
             background: "#FAFAFA",
             surface: "rgba(255, 255, 255, 0.78)",
-            text: {
-              main: "#1A1A1A",
-              muted: "#6F6F76"
-            },
+            text: { main: "#1A1A1A", muted: "#6F6F76" },
             accent: "#FCE4EC",
             border: "#F7BBD0",
-            json: {
-              bg: "#1E1E1E",
-              string: "#A6E22E",
-              key: "#F92672",
-              punctuation: "#F8F8F2"
-            }
+            json: { bg: "#1E1E1E", string: "#A6E22E", key: "#F92672", punctuation: "#F8F8F2" }
           },
           fontFamily: {
             serif: ["Playfair Display", "serif"],
@@ -57,7 +49,7 @@
     <header class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
       <a class="inline-flex items-center gap-2 text-sm font-medium text-text-muted hover:text-primary" href="/">
         <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-        New search
+        <span id="new-search-label">New search</span>
       </a>
       <form class="flex w-full max-w-2xl items-center gap-2 rounded-[20px] border border-accent bg-white/80 p-2 shadow-ambient" id="search-form">
         <input autocomplete="off" class="min-w-0 flex-1 border-none bg-transparent px-3 text-base text-text-main placeholder:text-text-muted focus:ring-0" id="query-input" placeholder="Describe the gift..." type="text"/>
@@ -69,43 +61,33 @@
 
     <section class="flex flex-col gap-3">
       <p class="text-sm font-medium uppercase tracking-[0.12em] text-primary">Mumzworld AI Gift Finder</p>
-      <h1 class="text-[36px] font-semibold leading-tight sm:text-[52px]">Curated matches</h1>
+      <h1 class="text-[36px] font-semibold leading-tight sm:text-[52px]" id="page-title">Curated matches</h1>
       <p class="max-w-3xl text-lg leading-8 text-text-muted" id="query-line"></p>
     </section>
 
     <section class="rounded-[24px] border border-accent bg-surface p-5 shadow-ambient backdrop-blur-xl" id="understanding-section">
-      <div class="grid gap-4 md:grid-cols-2">
-        <div>
-          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">Understood as</p>
-          <p class="text-base leading-7" id="understood-en">Loading...</p>
-        </div>
-        <div dir="rtl">
-          <p class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">الفهم بالعربية</p>
-          <p class="text-base leading-7" id="understood-ar">...</p>
-        </div>
-      </div>
+      <p class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted" id="understood-label">Understood as</p>
+      <p class="text-base leading-7" id="understood-text">Loading...</p>
     </section>
 
     <section class="grid gap-4 md:grid-cols-3" id="meta-grid"></section>
-
     <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" id="results-grid"></section>
-
   </main>
 
   <div class="fixed bottom-0 left-0 z-50 w-full">
     <details class="group w-full overflow-hidden rounded-t-[24px] border-t border-accent bg-white/90 shadow-drawer backdrop-blur-[24px]">
       <summary class="flex h-12 w-full cursor-pointer items-center justify-center gap-2 text-xs font-medium text-text-muted transition hover:bg-black/5">
-        See how the AI thought
+        <span id="drawer-label">See how the AI thought</span>
         <span class="material-symbols-outlined chevron text-[16px]">expand_more</span>
       </summary>
       <div class="mx-auto grid max-h-[330px] w-full max-w-6xl gap-6 overflow-y-auto border-t border-accent/70 px-6 py-5 md:grid-cols-2">
         <div>
-          <h3 class="mb-4 font-sans-round text-lg font-bold">Decision Matrix</h3>
+          <h3 class="mb-4 font-sans-round text-lg font-bold" id="decision-title">Decision Matrix</h3>
           <div class="rounded-[16px] border border-accent bg-white/70 p-4" id="decision-matrix"></div>
         </div>
         <div>
-          <h3 class="mb-4 font-sans-round text-lg font-bold">Raw Validated JSON</h3>
-          <pre class="max-h-[240px] overflow-auto rounded-[16px] bg-json-bg p-4 font-mono text-xs leading-6 text-json-punctuation" id="raw-json">{}</pre>
+          <h3 class="mb-4 font-sans-round text-lg font-bold" id="json-title">Raw Validated JSON</h3>
+          <pre class="max-h-[240px] overflow-auto rounded-[16px] bg-json-bg p-4 font-mono text-xs leading-6 text-json-punctuation ltr" dir="ltr" id="raw-json">{}</pre>
         </div>
       </div>
     </details>
@@ -125,6 +107,129 @@
 
     queryInput.value = initialQuery;
 
+    const copy = {
+      en: {
+        newSearch: "New search",
+        title: "Curated matches",
+        query: "Query",
+        noQuery: "No query entered.",
+        understood: "Understood as",
+        language: "Language",
+        budget: "Budget",
+        age: "Age",
+        english: "English",
+        arabic: "Arabic",
+        notSpecified: "Not specified",
+        months: "months",
+        noConfident: "No confident answer",
+        refusalTitle: "I do not know enough to recommend a gift for this request.",
+        fallbackNote: "Try adding the baby age, budget, or occasion.",
+        improve: "Improve suggestions",
+        improveTitle: "Make this search more specific",
+        improveBody: "Add one or more details, then update once.",
+        update: "Update results",
+        finding: "Finding grounded recommendations...",
+        firstRun: "The first run can take a moment while local embeddings load.",
+        setupNeeded: "Setup needed",
+        backendFailed: "The backend could not complete the request.",
+        drawer: "See how the AI thought",
+        decision: "Decision Matrix",
+        rawJson: "Raw Validated JSON",
+        recipient: "Recipient",
+        preferences: "Preferences",
+        occasion: "Occasion",
+        behavior: "Behavior",
+        recommendation: "recommendation",
+        refusal: "refusal",
+        avgConfidence: "Avg Confidence",
+        uncertaintyReason: "Uncertainty Reason",
+        notNeeded: "not needed",
+        unknown: "unknown",
+        inStock: "In stock",
+        outStock: "Out of stock",
+        match: "match",
+        grounded: "Why this is grounded",
+        retrieval: "retrieval",
+        describe: "Describe the gift..."
+      },
+      ar: {
+        newSearch: "بحث جديد",
+        title: "النتائج المختارة",
+        query: "الطلب",
+        noQuery: "لم يتم إدخال طلب.",
+        understood: "الفهم",
+        language: "اللغة",
+        budget: "الميزانية",
+        age: "العمر",
+        english: "الإنجليزية",
+        arabic: "العربية",
+        notSpecified: "غير محدد",
+        months: "شهر",
+        noConfident: "لا توجد إجابة واثقة",
+        refusalTitle: "لا أعرف ما يكفي لأوصي بهدية لهذا الطلب.",
+        fallbackNote: "جرّب إضافة عمر الطفل أو الميزانية أو المناسبة.",
+        improve: "اقتراحات للتحسين",
+        improveTitle: "اجعل البحث أكثر تحديداً",
+        improveBody: "أضف تفصيلاً واحداً أو أكثر ثم حدّث النتائج.",
+        update: "تحديث النتائج",
+        finding: "جارٍ البحث عن ترشيحات مبنية على الكتالوج...",
+        firstRun: "قد يستغرق التشغيل الأول لحظة أثناء تحميل التضمينات المحلية.",
+        setupNeeded: "يلزم ضبط الإعدادات",
+        backendFailed: "تعذر على الخادم إكمال الطلب.",
+        drawer: "اطلع على طريقة تفكير النظام",
+        decision: "مصفوفة القرار",
+        rawJson: "JSON المتحقق منه",
+        recipient: "المستلم",
+        preferences: "التفضيلات",
+        occasion: "المناسبة",
+        behavior: "السلوك",
+        recommendation: "ترشيح",
+        refusal: "رفض",
+        avgConfidence: "متوسط الثقة",
+        uncertaintyReason: "سبب عدم اليقين",
+        notNeeded: "غير مطلوب",
+        unknown: "غير معروف",
+        inStock: "متوفر",
+        outStock: "غير متوفر",
+        match: "تطابق",
+        grounded: "لماذا هذا الترشيح موثق",
+        retrieval: "استرجاع",
+        describe: "صف الهدية..."
+      }
+    };
+
+    const preferenceLabelsAr = {
+      educational: "تعليمي",
+      practical: "عملي",
+      luxury: "فاخر",
+      travel: "للسفر",
+      teething: "للتسنين",
+      organic: "عضوي"
+    };
+
+    const recipientLabelsAr = {
+      baby: "طفل",
+      mom: "أم",
+      dad: "أب",
+      parents: "والدان"
+    };
+
+    const occasionLabelsAr = {
+      baby_shower: "استقبال مولود",
+      birthday: "عيد ميلاد",
+      eid: "عيد",
+      newborn_visit: "زيارة مولود",
+      just_because: "بدون مناسبة"
+    };
+
+    function queryLooksArabic(query) {
+      return /[\u0600-\u06FF]/.test(query || "");
+    }
+
+    function langFromResult(result) {
+      return result.language_detected === "ar" ? "ar" : "en";
+    }
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -132,6 +237,19 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    function applyLanguage(lang) {
+      const isAr = lang === "ar";
+      document.documentElement.lang = lang;
+      document.body.dir = isAr ? "rtl" : "ltr";
+      queryInput.placeholder = copy[lang].describe;
+      document.getElementById("new-search-label").textContent = copy[lang].newSearch;
+      document.getElementById("page-title").textContent = copy[lang].title;
+      document.getElementById("understood-label").textContent = copy[lang].understood;
+      document.getElementById("drawer-label").textContent = copy[lang].drawer;
+      document.getElementById("decision-title").textContent = copy[lang].decision;
+      document.getElementById("json-title").textContent = copy[lang].rawJson;
     }
 
     function confidenceColor(confidence) {
@@ -143,7 +261,7 @@
     function metaCard(label, value) {
       return `
         <div class="rounded-[20px] border border-accent bg-white/75 p-4 shadow-ambient">
-          <p class="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">${label}</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">${escapeHtml(label)}</p>
           <p class="mt-2 text-lg font-semibold">${escapeHtml(value)}</p>
         </div>
       `;
@@ -153,21 +271,28 @@
       return result.display_currency === "INR" ? "INR" : "AED";
     }
 
-    function formatPrice(priceAed, result) {
+    function formatPrice(priceAed, result, lang) {
       if (displayCurrency(result) === "INR") {
-        return `₹${Math.round((Number(priceAed) || 0) * AED_TO_INR).toLocaleString("en-IN")}`;
+        const price = Math.round((Number(priceAed) || 0) * AED_TO_INR).toLocaleString("en-IN");
+        return lang === "ar" ? `${price} روبية هندية` : `₹${price}`;
       }
-      return `${escapeHtml(priceAed)} AED`;
+      return lang === "ar" ? `${escapeHtml(priceAed)} درهم` : `${escapeHtml(priceAed)} AED`;
     }
 
-    function formatBudget(result) {
+    function formatBudget(result, lang) {
       const constraints = result.extracted_constraints || {};
-      if (!result.budget_extracted) return "Not specified";
+      if (!result.budget_extracted) return copy[lang].notSpecified;
       if (displayCurrency(result) === "INR") {
         const original = constraints.budget_original || result.budget_extracted * AED_TO_INR;
-        return `₹${Math.round(original).toLocaleString("en-IN")}`;
+        const amount = Math.round(original).toLocaleString("en-IN");
+        return lang === "ar" ? `${amount} روبية هندية` : `₹${amount}`;
       }
-      return `${result.budget_extracted} AED`;
+      return lang === "ar" ? `${result.budget_extracted} درهم` : `${result.budget_extracted} AED`;
+    }
+
+    function formatAge(value, lang) {
+      if (value === null || value === undefined) return copy[lang].notSpecified;
+      return lang === "ar" ? `${value} ${copy.ar.months}` : `${value} ${copy.en.months}`;
     }
 
     function suggestionIntent(label) {
@@ -179,6 +304,31 @@
       if (value.includes("category") || value.includes("فئة")) return "category";
       if (value.includes("recipient") || value.includes("baby or mom") || value.includes("مستلم") || value.includes("طفل أو أم")) return "recipient";
       return "detail";
+    }
+
+    function suggestionPrompt(intent, label, result, lang) {
+      const currency = displayCurrency(result);
+      const prompts = {
+        en: {
+          budget: currency === "INR" ? "Budget in INR, for example 1500" : "Budget in AED, for example 150",
+          age: "Baby age, for example 6 months",
+          preference: "Preference, for example educational or practical",
+          occasion: "Occasion, for example birthday or Eid",
+          category: "Category, for example toys or books",
+          recipient: "Recipient, for example baby or new mom",
+          detail: `Detail for ${label}`
+        },
+        ar: {
+          budget: currency === "INR" ? "الميزانية بالروبية، مثل 1500" : "الميزانية بالدرهم، مثل 150",
+          age: "عمر الطفل، مثل 6 أشهر",
+          preference: "التفضيل، مثل تعليمي أو عملي",
+          occasion: "المناسبة، مثل عيد ميلاد أو عيد",
+          category: "الفئة، مثل ألعاب أو كتب",
+          recipient: "المستلم، مثل طفل أو أم جديدة",
+          detail: `تفصيل لـ ${label}`
+        }
+      };
+      return prompts[lang][intent] || prompts[lang].detail;
     }
 
     function chipList(items) {
@@ -194,56 +344,199 @@
       `;
     }
 
-    function improvementBox(result) {
-      const suggestions = result.language_detected === "ar"
-        ? result.suggested_refinements_ar
-        : result.suggested_refinements_en;
+    function improvementBox(result, lang) {
+      const suggestions = lang === "ar" ? result.suggested_refinements_ar : result.suggested_refinements_en;
       if (!suggestions || !suggestions.length) return "";
       const fields = suggestions.map((item) => {
         const intent = suggestionIntent(item);
         return `
           <label class="flex min-w-0 flex-1 flex-col gap-2 rounded-[16px] border border-accent bg-[#FFF7FA] p-3">
             <span class="text-sm font-semibold text-text-main">${escapeHtml(item)}</span>
-            <input class="suggestion-input rounded-full border border-border bg-white px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:border-primary focus:ring-primary" data-intent="${intent}" data-suggestion="${escapeHtml(item)}" placeholder="${suggestionPrompt(intent, item, result)}" type="text"/>
+            <input class="suggestion-input rounded-full border border-border bg-white px-4 py-3 text-sm text-text-main placeholder:text-text-muted focus:border-primary focus:ring-primary" data-intent="${intent}" data-suggestion="${escapeHtml(item)}" placeholder="${suggestionPrompt(intent, item, result, lang)}" type="text"/>
           </label>
         `;
       }).join("");
       return `
         <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-6 shadow-ambient">
-          <p class="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-primary">Improve suggestions</p>
-          <h2 class="font-sans-round text-xl font-bold">Make this search more specific</h2>
-          <p class="mt-2 max-w-3xl leading-7 text-text-muted">
-            Add one or more details, then update once.
-          </p>
+          <p class="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-primary">${copy[lang].improve}</p>
+          <h2 class="font-sans-round text-xl font-bold">${copy[lang].improveTitle}</h2>
+          <p class="mt-2 max-w-3xl leading-7 text-text-muted">${copy[lang].improveBody}</p>
           ${chipList(suggestions)}
           <form class="mt-5 rounded-[18px]" id="inline-suggestion-form">
-            <div class="grid gap-3 md:grid-cols-2">
-              ${fields}
-            </div>
-            <button class="mt-4 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition hover:opacity-90" type="submit">Update results</button>
+            <div class="grid gap-3 md:grid-cols-2">${fields}</div>
+            <button class="mt-4 rounded-full bg-primary px-5 py-3 text-sm font-bold text-white transition hover:opacity-90" type="submit">${copy[lang].update}</button>
           </form>
         </article>
       `;
     }
 
-    function suggestionPrompt(intent, label, result = {}) {
-      const currency = displayCurrency(result);
-      const prompts = {
-        budget: currency === "INR" ? "Budget in INR, for example 1500" : "Budget in AED, for example 150",
-        age: "Baby age, for example 6 months",
-        preference: "Preference, for example educational or practical",
-        occasion: "Occasion, for example birthday or Eid",
-        category: "Category, for example toys or books",
-        recipient: "Recipient, for example baby or new mom",
-        detail: `Detail for ${label}`
-      };
-      return prompts[intent] || prompts.detail;
+    function localizedPreferences(preferences, lang) {
+      if (!preferences || !preferences.length) return copy[lang].unknown;
+      if (lang === "en") return preferences.join(", ");
+      return preferences.map((item) => preferenceLabelsAr[item] || item).join("، ");
     }
 
-    function showInlineSuggestion(label, intent) {
+    function localizedRecipient(recipient, lang) {
+      if (!recipient) return copy[lang].unknown;
+      return lang === "ar" ? (recipientLabelsAr[recipient] || recipient) : recipient;
+    }
+
+    function localizedOccasion(occasion, lang) {
+      if (!occasion) return copy[lang].unknown;
+      return lang === "ar" ? (occasionLabelsAr[occasion] || occasion) : occasion.replaceAll("_", " ");
+    }
+
+    function ageChip(item, result, lang) {
+      if (result.age_months_extracted !== null && result.age_months_extracted !== undefined) {
+        return formatAge(result.age_months_extracted, lang);
+      }
+      const evidence = lang === "ar" ? item.evidence_points_ar : item.evidence_points_en;
+      const ageEvidence = (evidence || []).find((point) =>
+        lang === "ar" ? point.includes("العمر") : point.toLowerCase().includes("age range")
+      );
+      if (!ageEvidence) return lang === "ar" ? copy[lang].age : item.age_suitability;
+      return ageEvidence
+        .replace("Age range: ", "")
+        .replace("العمر المناسب: ", "");
+    }
+
+    function renderDecisionMatrix(result, lang) {
+      const confidences = (result.recommendations || []).map((item) => item.confidence || 0);
+      const avgConfidence = confidences.length
+        ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length
+        : 0;
+      const constraints = result.extracted_constraints || {};
+      const note = lang === "ar" ? result.uncertainty_note_ar : result.uncertainty_note_en;
+      const rows = [
+        [copy[lang].language, lang === "ar" ? copy[lang].arabic : copy[lang].english],
+        [copy[lang].budget, result.budget_extracted ? formatBudget(result, lang) : copy[lang].unknown],
+        [copy[lang].age, formatAge(result.age_months_extracted, lang)],
+        [copy[lang].recipient, localizedRecipient(constraints.recipient, lang)],
+        [copy[lang].preferences, localizedPreferences(constraints.preferences, lang)],
+        [copy[lang].occasion, localizedOccasion(constraints.occasion, lang)],
+        [copy[lang].behavior, result.out_of_scope ? copy[lang].refusal : copy[lang].recommendation],
+        [copy[lang].avgConfidence, confidences.length ? `${Math.round(avgConfidence * 100)}%` : copy[lang].notNeeded],
+        [copy[lang].uncertaintyReason, note || copy[lang].notNeeded]
+      ];
+      decisionMatrix.innerHTML = rows.map(([label, value]) => `
+        <div class="flex items-center justify-between gap-5 border-b border-accent/60 py-2 last:border-b-0">
+          <span class="text-sm text-text-muted">${escapeHtml(label)}</span>
+          <span class="font-mono text-sm font-semibold">${escapeHtml(value)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderEvidence(item, lang) {
+      const evidence = lang === "ar" ? item.evidence_points_ar : item.evidence_points_en;
+      if (!evidence || !evidence.length) return "";
+      return `
+        <div class="mt-5 rounded-[16px] border border-accent bg-[#FFF7FA] p-4">
+          <p class="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-primary">${copy[lang].grounded}</p>
+          <ul class="space-y-2 text-sm leading-6 text-text-muted">
+            ${evidence.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    }
+
+    function renderResult(result) {
+      const lang = langFromResult(result);
+      const isAr = lang === "ar";
+      applyLanguage(lang);
+
+      const understood = isAr ? result.query_understood_ar : result.query_understood_en;
+      document.getElementById("understood-text").textContent = understood || "";
+      document.getElementById("understanding-section").dir = isAr ? "rtl" : "ltr";
+      const currentQuery = queryInput.value.trim();
+      queryLine.textContent = currentQuery
+        ? `${copy[lang].query}: "${currentQuery}"`
+        : copy[lang].noQuery;
+
+      rawJson.textContent = JSON.stringify(result, null, 2);
+      renderDecisionMatrix(result, lang);
+
+      metaGrid.innerHTML = [
+        metaCard(copy[lang].language, isAr ? copy[lang].arabic : copy[lang].english),
+        metaCard(copy[lang].budget, formatBudget(result, lang)),
+        metaCard(copy[lang].age, formatAge(result.age_months_extracted, lang))
+      ].join("");
+
+      if (result.out_of_scope) {
+        const note = isAr ? result.uncertainty_note_ar : result.uncertainty_note_en;
+        resultsGrid.innerHTML = `
+          <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-8 shadow-ambient">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-primary">${copy[lang].noConfident}</p>
+            <h2 class="mb-4 text-3xl font-semibold">${copy[lang].refusalTitle}</h2>
+            <p class="max-w-3xl leading-8 text-text-muted">${escapeHtml(note || copy[lang].fallbackNote)}</p>
+          </article>
+          ${improvementBox(result, lang)}
+        `;
+        return;
+      }
+
+      resultsGrid.innerHTML = (result.recommendations || []).map((item) => {
+        const confidence = Math.round((item.confidence || 0) * 100);
+        const category = isAr ? item.category_ar : item.category_en;
+        const productName = isAr ? item.product_name_ar : item.product_name_en;
+        const reason = isAr ? item.reason_ar : item.reason_en;
+        return `
+          <article class="flex min-h-[360px] flex-col rounded-[24px] border border-accent bg-white p-5 shadow-ambient">
+            <div class="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">${escapeHtml(category)}</p>
+                <h2 class="font-sans-round text-xl font-bold leading-7">${escapeHtml(productName)}</h2>
+              </div>
+              <div class="shrink-0 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white">${formatPrice(item.price_aed, result, lang)}</div>
+            </div>
+            <div class="mb-4 flex flex-wrap gap-2 text-sm">
+              <span class="rounded-full bg-accent px-3 py-1">${escapeHtml(ageChip(item, result, lang))}</span>
+              <span class="rounded-full bg-accent px-3 py-1">${item.in_stock ? copy[lang].inStock : copy[lang].outStock}</span>
+              <span class="rounded-full bg-accent px-3 py-1 ${confidenceColor(item.confidence)}">${confidence}% ${copy[lang].match}</span>
+              <span class="rounded-full bg-accent px-3 py-1">${copy[lang].retrieval}: ${Math.round((item.retrieval_similarity || 0) * 100)}%</span>
+            </div>
+            <p class="leading-7 text-text-main">${escapeHtml(reason)}</p>
+            ${renderEvidence(item, lang)}
+          </article>
+        `;
+      }).join("");
+
+      resultsGrid.insertAdjacentHTML("beforeend", improvementBox(result, lang));
+    }
+
+    async function loadResults(query) {
+      const lang = queryLooksArabic(query) ? "ar" : "en";
+      applyLanguage(lang);
+      queryLine.textContent = query ? `${copy[lang].query}: "${query}"` : copy[lang].noQuery;
+      resultsGrid.innerHTML = `
+        <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-8 shadow-ambient">
+          <p class="text-lg font-semibold">${copy[lang].finding}</p>
+          <p class="mt-2 text-text-muted">${copy[lang].firstRun}</p>
+        </article>
+      `;
+
+      try {
+        const response = await fetch("/api/find", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "Request failed");
+        renderResult(payload);
+      } catch (error) {
+        resultsGrid.innerHTML = `
+          <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-[#F2C94C] bg-[#FFF8DC] p-8 shadow-ambient">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#8A6D00]">${copy[lang].setupNeeded}</p>
+            <h2 class="mb-4 text-3xl font-semibold">${copy[lang].backendFailed}</h2>
+            <p class="leading-8 text-text-muted">${escapeHtml(error.message)}</p>
+          </article>
+        `;
+      }
+    }
+
+    function showInlineSuggestion(intent) {
       const input = document.querySelector(`.suggestion-input[data-intent="${intent}"]`);
-      if (!input) return;
-      input.focus();
+      if (input) input.focus();
     }
 
     function applyInlineSuggestions() {
@@ -260,114 +553,6 @@
       loadResults(nextQuery);
     }
 
-    function renderDecisionMatrix(result) {
-      const confidences = (result.recommendations || []).map((item) => item.confidence || 0);
-      const avgConfidence = confidences.length
-        ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length
-        : 0;
-      const constraints = result.extracted_constraints || {};
-      const preferences = constraints.preferences && constraints.preferences.length
-        ? constraints.preferences.join(", ")
-        : "unknown";
-      const rows = [
-        ["Language", result.language_detected || "unknown"],
-        ["Budget", result.budget_extracted ? formatBudget(result) : "unknown"],
-        ["Age", result.age_months_extracted !== null && result.age_months_extracted !== undefined ? `${result.age_months_extracted} months` : "unknown"],
-        ["Recipient", constraints.recipient || "unknown"],
-        ["Preferences", preferences],
-        ["Occasion", constraints.occasion || "unknown"],
-        ["Behavior", result.out_of_scope ? "refusal" : "recommendation"],
-        ["Avg Confidence", confidences.length ? `${Math.round(avgConfidence * 100)}%` : "not applicable"],
-        ["Uncertainty Reason", result.uncertainty_note_en || "not needed"]
-      ];
-      decisionMatrix.innerHTML = rows.map(([label, value]) => `
-        <div class="flex items-center justify-between border-b border-accent/60 py-2 last:border-b-0">
-          <span class="text-sm text-text-muted">${label}</span>
-          <span class="font-mono text-sm font-semibold">${escapeHtml(value)}</span>
-        </div>
-      `).join("");
-    }
-
-    function renderResult(result) {
-      document.getElementById("understood-en").textContent = result.query_understood_en || "";
-      document.getElementById("understood-ar").textContent = result.query_understood_ar || "";
-      rawJson.textContent = JSON.stringify(result, null, 2);
-      renderDecisionMatrix(result);
-
-      metaGrid.innerHTML = [
-        metaCard("Language", result.language_detected === "ar" ? "Arabic" : "English"),
-        metaCard("Budget", formatBudget(result)),
-        metaCard("Age", result.age_months_extracted !== null && result.age_months_extracted !== undefined ? `${result.age_months_extracted} months` : "Not specified")
-      ].join("");
-
-      if (result.out_of_scope) {
-        resultsGrid.innerHTML = `
-          <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-8 shadow-ambient">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-primary">No confident answer</p>
-            <h2 class="mb-4 text-3xl font-semibold">I do not know enough to recommend a gift for this request.</h2>
-            <p class="max-w-3xl leading-8 text-text-muted">${escapeHtml(result.uncertainty_note_en || "Try adding the baby age, budget, or occasion.")}</p>
-            <p class="mt-4 max-w-3xl leading-8 text-text-muted" dir="rtl">${escapeHtml(result.uncertainty_note_ar || "")}</p>
-          </article>
-          ${improvementBox(result)}
-        `;
-        return;
-      }
-
-      resultsGrid.innerHTML = (result.recommendations || []).map((item) => {
-        const confidence = Math.round((item.confidence || 0) * 100);
-        return `
-          <article class="flex min-h-[360px] flex-col rounded-[24px] border border-accent bg-white p-5 shadow-ambient">
-            <div class="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">${escapeHtml(item.category_en)}</p>
-                <h2 class="font-sans-round text-xl font-bold leading-7">${escapeHtml(item.product_name_en)}</h2>
-                <p class="mt-2 text-sm leading-6 text-text-muted" dir="rtl">${escapeHtml(item.product_name_ar)}</p>
-              </div>
-              <div class="shrink-0 rounded-full bg-primary px-3 py-1 text-sm font-bold text-white">${formatPrice(item.price_aed, result)}</div>
-            </div>
-            <div class="mb-4 flex flex-wrap gap-2 text-sm">
-              <span class="rounded-full bg-accent px-3 py-1">${escapeHtml(item.age_suitability)}</span>
-              <span class="rounded-full bg-accent px-3 py-1">${item.in_stock ? "In stock" : "Out of stock"}</span>
-              <span class="rounded-full bg-accent px-3 py-1 ${confidenceColor(item.confidence)}">${confidence}% match</span>
-            </div>
-            <p class="leading-7 text-text-main">${escapeHtml(item.reason_en)}</p>
-            <p class="mt-4 leading-7 text-text-muted" dir="rtl">${escapeHtml(item.reason_ar)}</p>
-          </article>
-        `;
-      }).join("");
-
-      resultsGrid.insertAdjacentHTML("beforeend", improvementBox(result));
-    }
-
-    async function loadResults(query) {
-      queryLine.textContent = query ? `Query: "${query}"` : "No query entered.";
-      resultsGrid.innerHTML = `
-        <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-accent bg-white p-8 shadow-ambient">
-          <p class="text-lg font-semibold">Finding grounded recommendations...</p>
-          <p class="mt-2 text-text-muted">The first run can take a moment while local embeddings load.</p>
-        </article>
-      `;
-
-      try {
-        const response = await fetch("/api/find", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query })
-        });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.detail || "Request failed");
-        renderResult(payload);
-      } catch (error) {
-        resultsGrid.innerHTML = `
-          <article class="md:col-span-2 xl:col-span-3 rounded-[24px] border border-[#F2C94C] bg-[#FFF8DC] p-8 shadow-ambient">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#8A6D00]">Setup needed</p>
-            <h2 class="mb-4 text-3xl font-semibold">The backend could not complete the request.</h2>
-            <p class="leading-8 text-text-muted">${escapeHtml(error.message)}</p>
-          </article>
-        `;
-      }
-    }
-
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const query = queryInput.value.trim();
@@ -378,7 +563,7 @@
     resultsGrid.addEventListener("click", (event) => {
       const chip = event.target.closest(".suggestion-chip");
       if (!chip) return;
-      showInlineSuggestion(chip.dataset.suggestion, chip.dataset.intent);
+      showInlineSuggestion(chip.dataset.intent);
     });
 
     resultsGrid.addEventListener("submit", (event) => {
